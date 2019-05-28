@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Alura.Tunes
+namespace Alura.Tunes.Data
 {
-    public class Program
+    class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-
-
         }
 
         public static void TrabalhandoComLinqToXml()
