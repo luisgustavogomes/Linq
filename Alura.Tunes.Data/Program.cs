@@ -11,13 +11,55 @@ namespace Alura.Tunes.Data
     {
         public static void Main(string[] args)
         {
-            using (var contexto = new AluraTunesEntities()) 
+            using (var contexto = new AluraTunesEntities())
             {
-                TrabalhandoComLinqSintaxeDeMedotoSum(contexto);
+                MedotoGroupBY(contexto);
             }
         }
 
-        public static void TrabalhandoComLinqSintaxeDeMedotoSum(AluraTunesEntities contexto)
+
+        public static void MedotoGroupBY(AluraTunesEntities contexto)
+        {
+            var textoBusca = "Led Zeppelin";
+
+            var query = from i in contexto.ItensNotaFiscal
+                        where i.Faixa.Album.Artista.Nome.Equals(textoBusca)
+                        group i by i.Faixa.Album into agrupado
+                        let somaAgrupado = agrupado.Sum(q => q.Quantidade * q.PrecoUnitario)
+                        orderby somaAgrupado descending
+                        select new
+                        {
+                            TituloDoAlbum = agrupado.Key.Titulo
+                            ,
+                            TotalPorAlbum = somaAgrupado
+                        };
+            query
+                .ToList()
+                .ForEach(q => Console.WriteLine("{0}\t{1}",
+                                q.TituloDoAlbum.PadRight(40),
+                                q.TotalPorAlbum));
+
+            LinqToObjects.Espaco();
+
+            var query2 = contexto.ItensNotaFiscal
+                            .Where(q => q.Faixa.Album.Artista.Nome.Equals(textoBusca))
+                            .GroupBy(g => g.Faixa.Album)
+                            .Select(s => new
+                            {
+                                TituloDoAlbum = s.Key.Titulo,
+                                TotalPorAlbum = s.Sum(soma => soma.PrecoUnitario * soma.Quantidade)
+                            })
+                            .OrderByDescending(o => o.TotalPorAlbum);
+            query2
+                .ToList()
+                .ForEach(q => Console.WriteLine("{0}\t{1}",
+                                q.TituloDoAlbum.PadRight(40),
+                                q.TotalPorAlbum));
+
+
+        }
+
+        public static void MedotoSum(AluraTunesEntities contexto)
         {
             var textoBusca = "Led Zeppelin";
 
@@ -29,7 +71,7 @@ namespace Alura.Tunes.Data
                             i.Quantidade,
                             i.PrecoUnitario,
                             TotalDoItem = i.Quantidade * i.PrecoUnitario
-                        };            
+                        };
             query.ToList().ForEach(q => Console.WriteLine("{0}\t{1}\t{2}\t{3}", q.Nome.PadRight(40), q.Quantidade, q.PrecoUnitario, q.TotalDoItem));
             Console.WriteLine($"Total: {query.Sum(q => q.TotalDoItem)}");
 
@@ -40,8 +82,8 @@ namespace Alura.Tunes.Data
                             .Where(i => i.Faixa.Album.Artista.Nome.Equals(textoBusca));
             query2
                 .ToList()
-                .ForEach(q => 
-                    Console.WriteLine("{0}\t{1}\t{2}\t{3}", q.Faixa.Nome.PadRight(40), q.Quantidade, q.PrecoUnitario, (q.Quantidade*q.PrecoUnitario)));
+                .ForEach(q =>
+                    Console.WriteLine("{0}\t{1}\t{2}\t{3}", q.Faixa.Nome.PadRight(40), q.Quantidade, q.PrecoUnitario, (q.Quantidade * q.PrecoUnitario)));
 
             Console.WriteLine($"Total: {query2.Sum(q => (q.Quantidade * q.PrecoUnitario))}");
 
@@ -50,7 +92,7 @@ namespace Alura.Tunes.Data
         }
 
 
-        public static void TrabalhandoComLinqSintaxeDeMedotoCount(AluraTunesEntities contexto)
+        public static void MedotoCount(AluraTunesEntities contexto)
         {
             var textoBusca = "Led Zeppelin";
             var query = from f in contexto.Faixas
@@ -71,7 +113,7 @@ namespace Alura.Tunes.Data
 
         }
 
-        public static void TrabalhandoComLinqSintaxeDeMedotoComJoin3(AluraTunesEntities contexto)
+        public static void MedotoComJoin3(AluraTunesEntities contexto)
         {
             var busaArtista = "led";
             var buscaAlbum = "";
@@ -85,11 +127,11 @@ namespace Alura.Tunes.Data
             {
                 query = query.Where(q => q.Album.Titulo.Contains(buscaAlgum));
             }
-            query = query.OrderBy(q => q.Album.Titulo).ThenBy(q=>q.Nome);
+            query = query.OrderBy(q => q.Album.Titulo).ThenBy(q => q.Nome);
             query.ToList().ForEach(q => Console.WriteLine("{0}\t{1}", q.Album.Titulo.PadRight(35), q.Nome));
         }
 
-        public static void TrabalhandoComLinqSintaxeDeMedotoComJoin2(AluraTunesEntities contexto)
+        public static void MedotoComJoin2(AluraTunesEntities contexto)
         {
             var busaArtista = "led";
             var buscaAlbum = "Coda";
@@ -106,7 +148,7 @@ namespace Alura.Tunes.Data
             query.ToList().ForEach(q => Console.WriteLine("{0}\t{1}", q.Album.Titulo.PadRight(35), q.Nome));
         }
 
-        public static void TrabalhandoComLinqSintaxeDeMedotoComJoin(AluraTunesEntities contexto)
+        public static void MedotoComJoin(AluraTunesEntities contexto)
         {
             var textoDeBusca = "Led";
 
@@ -131,7 +173,7 @@ namespace Alura.Tunes.Data
             query2.ToList().ForEach(q => Console.WriteLine("{0}\t{1}", q.NomeArtista, q.NomeAlbum));
         }
 
-        public static void TrabalhandoComLinqSintaxeDeMetodo(AluraTunesEntities contexto)
+        public static void Metodo(AluraTunesEntities contexto)
         {
             var textoBusca = "l";
             //contexto.Database.Log = Console.WriteLine;
@@ -139,7 +181,7 @@ namespace Alura.Tunes.Data
             query2.ToList().ForEach(q => Console.WriteLine("{0}\t{1}", q.ArtistaId, q.Nome));
         }
 
-        public static void TrabalhandoComLinqSintaxeDeConsultaQueryComJoin(AluraTunesEntities contexto)
+        public static void ConsultaQueryComJoin(AluraTunesEntities contexto)
         {
             var faixaEGenero = from g in contexto.Generos
                                join f in contexto.Faixas
@@ -156,7 +198,7 @@ namespace Alura.Tunes.Data
             }
         }
 
-        public static void TrabalhandoComLinqSintaxeDeConsultaUmaTabelaSimples(AluraTunesEntities contexto)
+        public static void ConsultaUmaTabelaSimples(AluraTunesEntities contexto)
         {
             var query = from g in contexto.Generos
                         select g;
@@ -176,7 +218,7 @@ namespace Alura.Tunes.Data
             }
         }
 
-        public static void TrabalhandoComLinqToXml()
+        public static void ToXml()
         {
             var linqToXml = new LinqToXml();
             linqToXml.LacoLinqNativoComXmlSimples();
@@ -185,7 +227,7 @@ namespace Alura.Tunes.Data
 
         }
 
-        public static void TrabalhandoComLinqToObjects()
+        public static void ToObjects()
         {
             var linqToObjects = new LinqToObjects();
             linqToObjects.LacoComCondicional();
