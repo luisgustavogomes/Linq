@@ -1,22 +1,94 @@
 ﻿using Alura.Tunes.Data.Data;
+using Alura.Tunes.Data.Extension;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Alura.Tunes.Data
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
             using (var contexto = new AluraTunesEntities())
             {
-                MedotoGroupBY(contexto);
+                MetodosDeExtensao(contexto);
             }
+
         }
 
+        public static void MetodosDeExtensao(AluraTunesEntities contexto)
+        {
+            //contexto.Database.Log = Console.WriteLine;
+            var Media = contexto.NotasFiscais.Average(n => n.Total);
+            Console.WriteLine(Media);
+
+            var query = contexto.NotasFiscais.Select(t => t.Total);
+            var mediana = Mediana(query);
+            Console.WriteLine(mediana);
+
+            var resultadoMedidaExtension = query.Mediana(m => m);
+            Console.WriteLine(resultadoMedidaExtension);
+
+
+
+        }
+
+        public static decimal Mediana(IQueryable<decimal> query)
+        {
+            var quantidade = query.Count();
+            var queryOrdenada = query.OrderBy(q => q);
+            decimal resultado = 0;
+
+            if (quantidade % 2 == 0)
+            {
+                var elementoCentral_1 = queryOrdenada.Skip(quantidade / 2).First();
+                return elementoCentral_1;
+            }
+            else
+            {
+                var elementoCentral_1 = queryOrdenada.Skip(quantidade / 2).First();
+                var elementoCentral_2 = queryOrdenada.Skip((quantidade-1) / 2).First();
+                resultado = ((elementoCentral_1 + elementoCentral_2) / 2);
+            }
+
+            return resultado;
+        }
+
+        public static void MetodoMatematicos(AluraTunesEntities contexto)
+        {
+            contexto.Database.Log = Console.WriteLine;
+            //var Maximo = contexto.NotasFiscais.Max(n => n.Total);
+            //var Minimo = contexto.NotasFiscais.Min(n => n.Total);
+            //var Media  = contexto.NotasFiscais.Average(n => n.Total);
+
+            //Console.WriteLine("{0}\t{1}\t{2}",Maximo, Minimo, Media);
+
+            //var query = from nf in contexto.NotasFiscais
+            //            group nf by 1 into agrupado
+            //            select new
+            //            {
+            //                Maximo = agrupado.Max(nf => nf.Total),
+            //                Minimo = agrupado.Min(nf => nf.Total),
+            //                Media = agrupado.Average(nf => nf.Total),
+            //            };
+            //query
+            //    .ToList()
+            //    .ForEach(q => Console.WriteLine("{0}\t{1}\t{2}", q.Maximo, q.Minimo, q.Media));
+
+            var query2 = (from nf in contexto.NotasFiscais
+                          group nf by 1 into agrupado
+                          select new
+                          {
+                              Maximo = agrupado.Max(nf => nf.Total),
+                              Minimo = agrupado.Min(nf => nf.Total),
+                              Media = agrupado.Average(nf => nf.Total),
+                          }).Single();
+
+            Console.WriteLine("{0}\t{1}\t{2}", query2.Maximo, query2.Minimo, query2.Media);
+
+
+
+        }
 
         public static void MedotoGroupBY(AluraTunesEntities contexto)
         {
@@ -90,7 +162,6 @@ namespace Alura.Tunes.Data
             Console.WriteLine("==========================================================================");
 
         }
-
 
         public static void MedotoCount(AluraTunesEntities contexto)
         {

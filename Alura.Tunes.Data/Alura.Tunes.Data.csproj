@@ -112,6 +112,7 @@
     <Compile Include="Data\TipoMidia.cs">
       <DependentUpon>AluraTunes.tt</DependentUpon>
     </Compile>
+    <Compile Include="Extension\LinqExtension.cs" />
     <Compile Include="LinqToEntities.cs" />
     <Compile Include="LinqToObjects.cs" />
     <Compile Include="LinqToXml.cs" />
