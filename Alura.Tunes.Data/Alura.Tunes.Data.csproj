@@ -116,6 +116,7 @@
     <Compile Include="LinqToEntities.cs" />
     <Compile Include="LinqToObjects.cs" />
     <Compile Include="LinqToXml.cs" />
+    <Compile Include="PrimeiraParte.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
