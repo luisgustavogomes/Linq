@@ -13,13 +13,75 @@ namespace Alura.Tunes.Data
         {
             using (var contexto = new AluraTunesEntities())
             {
-                var numeroPagina = 3;
-                var numeroNotasFiscais = contexto.NotasFiscais.Count();
-                var numeropaginas = numeroNotasFiscais / TAMANHO_PAGINA;
-                ImprimirPagina(contexto, numeroPagina);
+
+                //contexto.Database.Log = Console.WriteLine;
+                var query = contexto.Faixas
+                    .Where(w => w.ItemNotaFiscals.Count > 0)
+                    .Select(s => new
+                    {
+                        Id = s.FaixaId,
+                        s.Nome,
+                        Total = s.ItemNotaFiscals.Sum(i => (i.Quantidade * i.PrecoUnitario))
+                    })
+                    .OrderByDescending(o => o.Total);
+
+
+                //query
+                //    .AsParallel()
+                //    .ToList()
+                //    .ForEach(q => Console.WriteLine("{0}\t{1}\t{2}\t", q.Id, q.Nome.PadRight(40), q.Total));
+
+                var primeiroItem = query.First();
+                var queryCliente = contexto.ItensNotaFiscal
+                                    .Where(w => w.FaixaId == primeiroItem.Id)
+                                    .Select(s => new
+                                    {
+                                        NomeCliente = s.NotaFiscal.Cliente.PrimeiroNome + " " + s.NotaFiscal.Cliente.Sobrenome
+                                    });
+
+                queryCliente.ToList()
+                    .OrderBy(o => o.NomeCliente)
+                    .ToList()
+                    .ForEach(l => Console.WriteLine(l.NomeCliente));
+
+
+                //===========================================================================================================//
+
+                var query2 = from f in contexto.Faixas
+                             where f.ItemNotaFiscals.Count > 0
+                             let TotalVendas = f.ItemNotaFiscals.Sum(i => i.Quantidade * i.PrecoUnitario)
+                             orderby TotalVendas descending
+                             select new
+                             {
+                                 f.FaixaId,
+                                 f.Nome,
+                                 Total = TotalVendas
+                             };
+                //query2
+                //    .AsParallel()
+                //    .ToList()
+                //    .ForEach(q => Console.WriteLine("{0}\t{1}\t{2}\t", q.Id, q.Nome.PadRight(40), q.Total));
+
+                var primeiroItem2 = query.First();
+
+
+
 
             }
 
+        }
+
+        public static void ImprimirRelatorio(AluraTunesEntities contexto)
+        {
+            var numeroNotasFiscais = contexto.NotasFiscais.Count();
+            var numeropaginas = Math.Ceiling((decimal)numeroNotasFiscais / TAMANHO_PAGINA);
+
+            for (int i = 1; i <= numeropaginas; i++)
+            {
+                Console.WriteLine("===================================");
+                ImprimirPagina(contexto, i);
+                Console.WriteLine($"Página {i} de {numeropaginas}".PadLeft(20));
+            }
         }
 
         public static void ImprimirPagina(AluraTunesEntities contexto, int numeroPagina)
