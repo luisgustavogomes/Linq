@@ -11,9 +11,43 @@ namespace Alura.Tunes.Data
 
         public static void Main(string[] args)
         {
+            var nomeDaMusica = "Smells Like Teen Spirit";
+
             using (var contexto = new AluraTunesEntities())
             {
-                
+
+                var faixaIds = contexto.Faixas
+                                .Where(f => f.Nome.Contains(nomeDaMusica))
+                                .Select(f => f.FaixaId);
+
+                faixaIds.ToList().ForEach(f => Console.WriteLine(f));
+
+                //===================================================================//
+                var faixasItens1 = contexto.ItensNotaFiscal;
+                var faixasItens2 = contexto.ItensNotaFiscal;
+
+                //var query1 = faixasItens1.Join(faixasItens2, 
+                //                faixaIten1 => faixaIten1.FaixaId,
+                //                b => b.
+                //                )
+                //                .Where(q => faixaIds.Contains(q.FaixaId));
+              
+                //query1.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
+
+                //===================================================================//
+
+                Console.WriteLine();
+
+                var query2 = from c in contexto.ItensNotaFiscal
+                             join cc in contexto.ItensNotaFiscal on c.NotaFiscalId equals cc.NotaFiscalId
+                             where faixaIds.Contains(c.FaixaId)
+                              && c.FaixaId != cc.FaixaId  
+                             select cc;
+                query2.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
+
+
+
+
 
             }
 
