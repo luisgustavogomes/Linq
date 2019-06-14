@@ -8,49 +8,81 @@ namespace Alura.Tunes.Data
     public partial class Program
     {
         public const int TAMANHO_PAGINA = 10;
+        private const string NOME_DA_MUSICA = "Smells Like Teen Spirit";
 
         public static void Main(string[] args)
         {
-            var nomeDaMusica = "Smells Like Teen Spirit";
 
             using (var contexto = new AluraTunesEntities())
             {
-
-                var faixaIds = contexto.Faixas
-                                .Where(f => f.Nome.Contains(nomeDaMusica))
-                                .Select(f => f.FaixaId);
-
-                faixaIds.ToList().ForEach(f => Console.WriteLine(f));
-
-                //===================================================================//
-                var faixasItens1 = contexto.ItensNotaFiscal;
-                var faixasItens2 = contexto.ItensNotaFiscal;
-
-                //var query1 = faixasItens1.Join(faixasItens2, 
-                //                faixaIten1 => faixaIten1.FaixaId,
-                //                b => b.
-                //                )
-                //                .Where(q => faixaIds.Contains(q.FaixaId));
-              
-                //query1.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
-
-                //===================================================================//
-
-                Console.WriteLine();
-
-                var query2 = from c in contexto.ItensNotaFiscal
-                             join cc in contexto.ItensNotaFiscal on c.NotaFiscalId equals cc.NotaFiscalId
-                             where faixaIds.Contains(c.FaixaId)
-                              && c.FaixaId != cc.FaixaId  
-                             select cc;
-                query2.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
-
-
-
-
-
+                
             }
 
+        }
+
+        private static void ExemploDeExecucaoTardia(AluraTunesEntities contexto)
+        {
+            var mesAniversario = 1;
+
+            while (mesAniversario <= 12)
+            {
+                Console.WriteLine("Mês: {0}", mesAniversario);
+
+                var lista = (from f in contexto.Funcionarios
+                             where f.DataNascimento.Value.Month == mesAniversario
+                             orderby f.DataNascimento.Value.Month, f.DataNascimento.Value.Day
+                             select f).ToList();
+
+                mesAniversario++;
+                lista.ForEach(f => Console.WriteLine("{0:dd/MM}\t{1} {2}", f.DataNascimento, f.PrimeiroNome, f.Sobrenome));
+
+                //Console.WriteLine("==============================");
+
+
+                //var query2 = contexto.Funcionarios
+                //                .OrderBy(f => f.DataNascimento.Value.Month)
+                //                .ThenBy(f => f.DataNascimento.Value.Day);
+
+                //query2.ToList().ForEach(f => Console.WriteLine("{0:dd/MM}\t{1} {2}", f.DataNascimento, f.PrimeiroNome, f.Sobrenome));
+
+            }
+        }
+
+        public static void SelfJoinSintaxeDeConsulta(AluraTunesEntities contexto)
+        {
+            var faixaIds = contexto.Faixas
+                            .Where(f => f.Nome.Contains(NOME_DA_MUSICA))
+                            .Select(f => f.FaixaId);
+
+            faixaIds.ToList().ForEach(f => Console.WriteLine(f));
+
+            //===================================================================//
+            var faixasItens1 = contexto.ItensNotaFiscal;
+            var faixasItens2 = contexto.ItensNotaFiscal;
+
+            //var query1 = faixasItens1.AsEnumerable()
+            //                .Join(faixasItens2.AsEnumerable(),
+            //                    f => f.FaixaId,
+            //                    ff => ff.FaixaId,
+            //                (f, ff) => new
+            //                {
+            //                    faixasItens1 = f,
+            //                    faixasItens2 = ff
+            //                })
+            //                .Where(q => q.Any);
+
+            //query1.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
+
+            //===================================================================//
+
+            Console.WriteLine();
+
+            var query2 = from c in contexto.ItensNotaFiscal
+                         join cc in contexto.ItensNotaFiscal on c.NotaFiscalId equals cc.NotaFiscalId
+                         where faixaIds.Contains(c.FaixaId)
+                          && c.FaixaId != cc.FaixaId
+                         select cc;
+            query2.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
         }
 
         public static void ClienteQueComprouOItemMaisVendido(AluraTunesEntities contexto)
