@@ -1,7 +1,11 @@
 ﻿using Alura.Tunes.Data.Data;
 using Alura.Tunes.Data.Extension;
 using System;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using ZXing;
 
 namespace Alura.Tunes.Data
 {
@@ -9,18 +13,71 @@ namespace Alura.Tunes.Data
     {
         public const int TAMANHO_PAGINA = 10;
         private const string NOME_DA_MUSICA = "Smells Like Teen Spirit";
+        private const string PASTA = "Imagens";
 
         public static void Main(string[] args)
         {
-
-            using (var contexto = new AluraTunesEntities())
-            {
-                
-            }
+            QrCode();
 
         }
 
-        private static void ExemploDeExecucaoTardia(AluraTunesEntities contexto)
+        public static void QrCode()
+        {
+            var barcodeWhiter = new BarcodeWriter
+            {
+                Format = BarcodeFormat.QR_CODE,
+                Options = new ZXing.Common.EncodingOptions
+                {
+                    Width = 300,
+                    Height = 300
+                }
+            };
+
+
+            if (!Directory.Exists(PASTA))
+                Directory.CreateDirectory(PASTA);
+
+
+            using (var contexto = new AluraTunesEntities())
+            {
+                var query = contexto.Faixas;
+                var lista = query.ToList();
+
+                var stopwatch = Stopwatch.StartNew();
+
+                var queryCodigos = lista
+                    .AsParallel()
+                    .Select(s => new
+                    {
+                        Arquivo = string.Format("{0}\\{1}.{2}", PASTA, s.FaixaId, "jpeg"),
+                        Imagem = barcodeWhiter.Write(string.Format("aluratunes.com/faixa/{0}", s.FaixaId))
+                    });
+
+                var qtde = queryCodigos.Count();
+                stopwatch.Stop();
+
+                Console.WriteLine("Códigos gerados: {0} em {1} segundos ", qtde, stopwatch.ElapsedMilliseconds/1000.0);
+                // Gerou em 14,885 seg old
+                // Gerou em 7,524  seg old
+
+                stopwatch = Stopwatch.StartNew();
+
+                //queryCodigos.AsParallel().ToList().ForEach(i => i.Imagem.Save(i.Arquivo, ImageFormat.Jpeg));
+                queryCodigos.ForAll(i => i.Imagem.Save(i.Arquivo, ImageFormat.Jpeg));
+
+                qtde = queryCodigos.Count();
+                stopwatch.Stop();
+                Console.WriteLine("Imagens salvas: {0} em {1} segundos ", qtde, stopwatch.ElapsedMilliseconds / 1000.0);
+                // Gravou em 58,108 seg old
+                // Gravou em 34,423 seg sem for all
+                // Gravou em 25,73 seg com for all
+
+
+
+            }
+        }
+
+        public static void ExemploDeExecucaoTardia(AluraTunesEntities contexto)
         {
             var mesAniversario = 1;
 
@@ -57,21 +114,14 @@ namespace Alura.Tunes.Data
             faixaIds.ToList().ForEach(f => Console.WriteLine(f));
 
             //===================================================================//
-            var faixasItens1 = contexto.ItensNotaFiscal;
-            var faixasItens2 = contexto.ItensNotaFiscal;
 
-            //var query1 = faixasItens1.AsEnumerable()
-            //                .Join(faixasItens2.AsEnumerable(),
-            //                    f => f.FaixaId,
-            //                    ff => ff.FaixaId,
-            //                (f, ff) => new
-            //                {
-            //                    faixasItens1 = f,
-            //                    faixasItens2 = ff
-            //                })
-            //                .Where(q => q.Any);
+            var query1 = contexto.ItensNotaFiscal.AsEnumerable()
+                                 .Join(contexto.ItensNotaFiscal.AsEnumerable(),
+                                 i1 => i1.ItemNotaFiscalId,
+                                 i2 => i2.ItemNotaFiscalId,
+                                 (i2, i1) => i1);
 
-            //query1.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
+            query1.ToList().ForEach(f => Console.WriteLine(f.Impressao()));
 
             //===================================================================//
 
