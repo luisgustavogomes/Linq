@@ -30,9 +30,9 @@ namespace Alura.Tunes.Data.Data
         public virtual DbSet<Cliente> Clientes { get; set; }
         public virtual DbSet<Faixa> Faixas { get; set; }
         public virtual DbSet<Funcionario> Funcionarios { get; set; }
-        public virtual DbSet<Genero> Generos { get; set; }
-        public virtual DbSet<ItemNotaFiscal> ItensNotaFiscal { get; set; }
-        public virtual DbSet<NotaFiscal> NotasFiscais { get; set; }
+        public virtual DbSet<Genero> Generoes { get; set; }
+        public virtual DbSet<ItemNotaFiscal> ItemNotaFiscals { get; set; }
+        public virtual DbSet<NotaFiscal> NotaFiscals { get; set; }
         public virtual DbSet<Playlist> Playlists { get; set; }
         public virtual DbSet<TipoMidia> TipoMidias { get; set; }
     }
