@@ -10,10 +10,10 @@ namespace Alura.Tunes.Data
         public static void MetodosDeExtensao(AluraTunesEntities contexto)
         {
             //contexto.Database.Log = Console.WriteLine;
-            var Media = contexto.NotasFiscais.Average(n => n.Total);
+            var Media = contexto.NotaFiscals.Average(n => n.Total);
             Console.WriteLine(Media);
 
-            var query = contexto.NotasFiscais.Select(t => t.Total);
+            var query = contexto.NotaFiscals.Select(t => t.Total);
             var mediana = Mediana(query);
             Console.WriteLine(mediana);
 
@@ -66,7 +66,7 @@ namespace Alura.Tunes.Data
             //    .ToList()
             //    .ForEach(q => Console.WriteLine("{0}\t{1}\t{2}", q.Maximo, q.Minimo, q.Media));
 
-            var query2 = (from nf in contexto.NotasFiscais
+            var query2 = (from nf in contexto.NotaFiscals
                           group nf by 1 into agrupado
                           select new
                           {
@@ -85,7 +85,7 @@ namespace Alura.Tunes.Data
         {
             var textoBusca = "Led Zeppelin";
 
-            var query = from i in contexto.ItensNotaFiscal
+            var query = from i in contexto.ItemNotaFiscals
                         where i.Faixa.Album.Artista.Nome.Equals(textoBusca)
                         group i by i.Faixa.Album into agrupado
                         let somaAgrupado = agrupado.Sum(q => q.Quantidade * q.PrecoUnitario)
@@ -104,7 +104,7 @@ namespace Alura.Tunes.Data
 
             LinqToObjects.Espaco();
 
-            var query2 = contexto.ItensNotaFiscal
+            var query2 = contexto.ItemNotaFiscals
                             .Where(q => q.Faixa.Album.Artista.Nome.Equals(textoBusca))
                             .GroupBy(g => g.Faixa.Album)
                             .Select(s => new
@@ -126,7 +126,7 @@ namespace Alura.Tunes.Data
         {
             var textoBusca = "Led Zeppelin";
 
-            var query = from i in contexto.ItensNotaFiscal
+            var query = from i in contexto.ItemNotaFiscals
                         where i.Faixa.Album.Artista.Nome.Equals(textoBusca)
                         select new
                         {
@@ -141,7 +141,7 @@ namespace Alura.Tunes.Data
             LinqToObjects.Espaco();
             Console.WriteLine("==========================================================================");
 
-            var query2 = contexto.ItensNotaFiscal
+            var query2 = contexto.ItemNotaFiscals
                             .Where(i => i.Faixa.Album.Artista.Nome.Equals(textoBusca));
             query2
                 .ToList()
@@ -245,7 +245,7 @@ namespace Alura.Tunes.Data
 
         public static void ConsultaQueryComJoin(AluraTunesEntities contexto)
         {
-            var faixaEGenero = from g in contexto.Generos
+            var faixaEGenero = from g in contexto.Generoes
                                join f in contexto.Faixas
                                     on g.GeneroId equals f.GeneroId
                                where g.Nome.Contains("Drama")
@@ -262,10 +262,10 @@ namespace Alura.Tunes.Data
 
         public static void ConsultaUmaTabelaSimples(AluraTunesEntities contexto)
         {
-            var query = from g in contexto.Generos
+            var query = from g in contexto.Generoes
                         select g;
 
-            var query2 = contexto.Generos.Select(g => g).OrderByDescending(g => g.Nome);
+            var query2 = contexto.Generoes.Select(g => g).OrderByDescending(g => g.Nome);
 
             Console.WriteLine("\nLinqNativo");
             foreach (var item in query)

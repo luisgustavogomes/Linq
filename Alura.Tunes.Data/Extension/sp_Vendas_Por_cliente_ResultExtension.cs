@@ -7,13 +7,11 @@ using System.Threading.Tasks;
 
 namespace Alura.Tunes.Data.Extension
 {
-    public static class ItensNotaFiscalExtension
+    public static class sp_Vendas_Por_cliente_ResultExtension
     {
-
-        public static string Impressao (this ItemNotaFiscal i)
+        public static string Impressao(this sp_Vendas_Por_cliente_Result i)
         {
-            return $"Id.: {i.NotaFiscalId} | Nome.: {i.Faixa.Nome} " ;
+            return $"Id.: {i.FaixaId} | Nome.: {i.nome}";
         }
-
     }
 }

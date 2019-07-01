@@ -17,7 +17,24 @@ namespace Alura.Tunes.Data
 
         public static void Main(string[] args)
         {
-            QrCode();
+            int clienteId = 17;
+
+            using (var contexto = new AluraTunesEntities())
+            {
+                var query =
+                from v in contexto.sp_Vendas_Por_cliente(clienteId)
+                group v by new { v.DataNotaFiscal.Year, v.DataNotaFiscal.Month } into a
+                orderby a.Key.Year, a.Key.Month
+                select new
+                {
+                    Ano = a.Key.Year,
+                    Mes = a.Key.Month,
+                    Total = a.Sum(c => c.Total)
+                };
+
+                query.ToList().ForEach(f => Console.WriteLine("{0}\t{1}\t{2}",f.Ano,f.Mes,f.Total));
+
+            }
 
         }
 
@@ -115,8 +132,8 @@ namespace Alura.Tunes.Data
 
             //===================================================================//
 
-            var query1 = contexto.ItensNotaFiscal.AsEnumerable()
-                                 .Join(contexto.ItensNotaFiscal.AsEnumerable(),
+            var query1 = contexto.ItemNotaFiscals.AsEnumerable()
+                                 .Join(contexto.ItemNotaFiscals.AsEnumerable(),
                                  i1 => i1.ItemNotaFiscalId,
                                  i2 => i2.ItemNotaFiscalId,
                                  (i2, i1) => i1);
@@ -127,8 +144,8 @@ namespace Alura.Tunes.Data
 
             Console.WriteLine();
 
-            var query2 = from c in contexto.ItensNotaFiscal
-                         join cc in contexto.ItensNotaFiscal on c.NotaFiscalId equals cc.NotaFiscalId
+            var query2 = from c in contexto.ItemNotaFiscals
+                         join cc in contexto.ItemNotaFiscals on c.NotaFiscalId equals cc.NotaFiscalId
                          where faixaIds.Contains(c.FaixaId)
                           && c.FaixaId != cc.FaixaId
                          select cc;
@@ -155,7 +172,7 @@ namespace Alura.Tunes.Data
             //    .ForEach(q => Console.WriteLine("{0}\t{1}\t{2}\t", q.Id, q.Nome.PadRight(40), q.Total));
 
             var primeiroItem = query.First();
-            var queryCliente = contexto.ItensNotaFiscal
+            var queryCliente = contexto.ItemNotaFiscals
                                 .Where(w => w.FaixaId == primeiroItem.Id)
                                 .Select(s => new
                                 {
@@ -190,7 +207,7 @@ namespace Alura.Tunes.Data
 
         public static void ImprimirRelatorio(AluraTunesEntities contexto)
         {
-            var numeroNotasFiscais = contexto.NotasFiscais.Count();
+            var numeroNotasFiscais = contexto.NotaFiscals.Count();
             var numeropaginas = Math.Ceiling((decimal)numeroNotasFiscais / TAMANHO_PAGINA);
 
             for (int i = 1; i <= numeropaginas; i++)
@@ -203,7 +220,7 @@ namespace Alura.Tunes.Data
 
         public static void ImprimirPagina(AluraTunesEntities contexto, int numeroPagina)
         {
-            var query = contexto.NotasFiscais.Select(s => new
+            var query = contexto.NotaFiscals.Select(s => new
             {
                 Numero = s.NotaFiscalId,
                 Data = s.DataNotaFiscal,

@@ -12,6 +12,8 @@ namespace Alura.Tunes.Data.Data
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class AluraTunesEntities : DbContext
     {
@@ -35,5 +37,14 @@ namespace Alura.Tunes.Data.Data
         public virtual DbSet<NotaFiscal> NotaFiscals { get; set; }
         public virtual DbSet<Playlist> Playlists { get; set; }
         public virtual DbSet<TipoMidia> TipoMidias { get; set; }
+    
+        public virtual ObjectResult<sp_Vendas_Por_cliente_Result> sp_Vendas_Por_cliente(Nullable<int> clienteId)
+        {
+            var clienteIdParameter = clienteId.HasValue ?
+                new ObjectParameter("clienteId", clienteId) :
+                new ObjectParameter("clienteId", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<sp_Vendas_Por_cliente_Result>("sp_Vendas_Por_cliente", clienteIdParameter);
+        }
     }
 }
